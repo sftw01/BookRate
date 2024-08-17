@@ -1,0 +1,77 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using BookRateNetCore.Shared.Models
+@using System.Timers;
+
+
+@inject IDialogService DialogService
+
+<MudDialog MaxWidth="MaxWidth.None" Style="width: 130vw; height: 80vh;">
+    <DialogContent>
+        <MudGrid Style="margin-top: 20px;">
+
+            <MudItem xs="12" md="4" lg="3">
+                <MudImage Src="@GetImageSrc(Book.CoverImage)" Alt="Book Cover" Style="width: 100%; height: auto; max-width: 400px; max-height: 600px;" />
+            </MudItem>
+
+            <MudItem xs="12" md="8" lg="9">
+
+                <MudText Typo="Typo.h4" GutterBottom="true">@Book.Title</MudText>
+
+                <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@Book.Author</MudText>
+
+                <MudRating Value="@Book.Rate" MaxValue="5" Size="Size.Small" Style="margin-top: 10px;" />
+
+                <MudText Typo="Typo.body1" Style="margin-top: 20px;">
+                    @Book.Description
+                </MudText>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Style="margin-top: 20px;">
+            <MudItem xs="12" md="4">
+                <MudText Typo="Typo.caption">Publisher: @Book.Publisher</MudText>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudText Typo="Typo.caption">Pages: @Book.Pages</MudText>
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudText Typo="Typo.caption">
+                    Published: @(Book.PublishDate.HasValue
+                    ? Book.PublishDate.Value.ToString("MMMM yyyy")
+                    : "Unknown")
+                </MudText>
+            </MudItem>
+
+        </MudGrid>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
+
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public Book Book { get; set; }
+
+    private void Cancel() => MudDialog.Close();
+
+
+    private string GetImageSrc(byte[]? coverImage)
+    {
+        if (coverImage == null || coverImage.Length == 0)
+            return "https://media.istockphoto.com/id/1352945762/vector/no-image-available-like-missing-picture.jpg?s=612x612&w=0&k=20&c=4X-znbt02a8EIdxwDFaxfmKvUhTnLvLMv1i1f3bToog=";
+        // return null;
+
+        var base64Image = Convert.ToBase64String(coverImage);
+        return $"data:image/png;base64,{base64Image}";
+    }
+}

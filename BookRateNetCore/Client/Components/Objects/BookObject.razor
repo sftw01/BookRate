@@ -1,0 +1,111 @@
+﻿@using BookRateNetCore.Shared.Models
+@using BookRateNetCore.Shared.Services
+@using BookRateNetCore.Client.Components.Dialogs
+@using BookRateNetCore.Shared
+
+
+@inject IDialogService DialogService;
+@inject HttpClient httpClient;
+@inject NavigationManager NavigationManager
+
+<MudItem xs="2">
+    <MudCard>
+        <div style="display: flex; justify-content: center;">
+            <MudImage Src="@GetImageSrc(book.CoverImage)" Width="250" Height="200" />
+        </div>
+
+        <MudCardContent>
+            <MudText Typo="Typo.h5"> @book.Title</MudText>
+            <MudRating ReadOnly="true" SelectedValue="@book.Rate" Size="Size.Small" />
+            <MudText Typo="Typo.body2">@book.Author</MudText>
+            <MudText Typo="Typo.body2">@book.Description</MudText>
+            @* <MudRating ReadOnly="false" SelectedValue="@book.Rate" Size="Size.Large" /> *@
+        </MudCardContent>
+
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Color="Color.Primary">Share</MudButton>
+            <MudButton OnClick="ShowDetails" Variant="Variant.Text" Color="Color.Primary">Details</MudButton>
+            <MudButton OnClick="@( () => Delete(book) )" Variant="Variant.Text" Color="Color.Error">Delete</MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudItem>
+
+
+
+@code {
+
+    [CascadingParameter]
+    public Book book { get; set; }
+
+    //callback to procedure to refresh bookCollection page when a book is deleted
+    [Parameter]
+    public EventCallback Refresh { get; set; }
+
+    private int cnt;
+    public int Spacing { get; set; } = 6;
+
+    private string temp;
+    private int _selected = 1;
+
+    private void GoToIndexPage()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+
+
+    private string GetImageSrc(byte[]? coverImage)
+    {
+        if (coverImage == null || coverImage.Length == 0)
+            return "https://media.istockphoto.com/id/1352945762/vector/no-image-available-like-missing-picture.jpg?s=612x612&w=0&k=20&c=4X-znbt02a8EIdxwDFaxfmKvUhTnLvLMv1i1f3bToog=";
+        // return null;
+
+        var base64Image = Convert.ToBase64String(coverImage);
+        return $"data:image/png;base64,{base64Image}";
+    }
+
+
+
+
+    private async Task DeleteAction(Book book)
+    {
+        Guid bookId = book.Id;
+        await httpClient.DeleteAsync($"api/Book/DeleteBook?bookId={bookId}");
+
+    }
+
+
+    private async Task Delete(Book book)
+    {
+        var parameters = new DialogParameters<DeleteBookDialog>
+        {
+            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
+            { x => x.ButtonText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = await DialogService.ShowAsync<DeleteBookDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (result.Data is not null)
+        {
+            // Books.Remove(book);
+            await DeleteAction(book);
+            await Refresh.InvokeAsync();
+        }
+    }
+
+
+    private async Task ShowDetails()
+    {
+        var parameters = new DialogParameters<BookDetailsDialog>
+        {
+            { x => x.Book, book }
+        };
+
+         var options = new DialogOptions() { CloseButton = true, NoHeader = true };
+         // var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+         await DialogService.ShowAsync<BookDetailsDialog>("Book details", parameters, options);
+    }
+}

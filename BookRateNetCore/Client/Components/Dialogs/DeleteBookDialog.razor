@@ -1,0 +1,75 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using BookRateNetCore.Shared.Models
+@using System.Timers;
+
+
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudText>@ContentText</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+@*         @(@buttonEnabled 
+                ? <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton> 
+                : <MudButton Disabled="true" Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>) *@
+
+        @if (buttonEnabled)
+        {
+            <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+        }
+        else
+        {
+            <MudButton Disabled="true" Color="@Color" Variant="Variant.Filled">(@count) @ButtonText</MudButton>
+        }
+        
+
+        @* <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton> *@
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public string ContentText { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; }
+
+    private void Submit() => MudDialog.Close<bool>(true);
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private Timer timer;
+    private int TimeToEnable = 1000;
+    private bool buttonEnabled = false;
+    private int count = 5;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        timer = new Timer(TimeToEnable);
+        timer.Elapsed += TimerCapture;
+        timer.Enabled = true;
+    }
+
+    private void TimerCapture(object sender, ElapsedEventArgs e)
+    {
+        count--;
+        InvokeAsync(() => StateHasChanged());
+        if(count == 0)
+        {
+            timer.Stop();
+            timer.Dispose();
+            buttonEnabled = true;
+            InvokeAsync(() => StateHasChanged());
+        }
+    }
+}

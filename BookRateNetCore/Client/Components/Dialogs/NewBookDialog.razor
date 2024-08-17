@@ -1,0 +1,126 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using BookRateNetCore.Shared.Models
+@using MudBlazor
+
+@inject IDialogService DialogService
+
+
+<EditForm Model="@model" OnSubmit="Submit">
+    <DataAnnotationsValidator />
+
+    <MudPaper Style="display: flex; flex-direction: row; justify-content: space-between; ">
+        <!-- picture - left side -->
+        <MudPaper Style="display: flex; flex-direction: column; align-items: center; width: 40%;">
+            <MudImage Src="@GetImageSrc(tempCoverImage)" ObjectFit="ObjectFit.Cover" Height="300" Width="300" />
+            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                <ActivatorContent>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.CloudUpload">
+                        Add Image
+                    </MudButton>
+                </ActivatorContent>
+            </MudFileUpload>
+        </MudPaper>
+
+        <!-- form - right side -->
+        <MudPaper Style="flex: 1; padding-left: 20px;">
+            <MudDialog>
+                <TitleContent>
+                    <MudText Typo="Typo.h6">
+                        Add New Book - select image
+                    </MudText>
+                </TitleContent>
+                <DialogContent>
+                    <MudTextField Label="Title" @bind-Value="model.Title" For="@( () => model.Title )" />
+                    <MudTextField Label="Description" @bind-Value="model.Description" For="@( () => model.Description )" Lines="12" />
+
+                    <MudPaper>
+                        <br />
+                        <MudText>Your Rating: </MudText>
+
+                        <MudRating ReadOnly="false" @bind-SelectedValue="model.Rate" Size="Size.Large" />
+                        <br />
+     
+                    </MudPaper>
+
+                </DialogContent>
+
+                <DialogActions>
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="px-10">Add</MudButton>
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Secondary" OnClick="Cancel" Class="px-10">Cancel</MudButton>
+                </DialogActions>
+            </MudDialog>
+        </MudPaper>
+    </MudPaper>
+</EditForm>
+
+
+
+@code {
+
+
+    // ================================== for image ==============================================
+    private IBrowserFile? selectedFile;
+    private byte[] tempCoverImage = Array.Empty<byte>();
+
+    IList<IBrowserFile> _files = new List<IBrowserFile>();
+
+    private async Task UploadFiles(IBrowserFile file)
+    {
+        selectedFile = file;
+        var buffer = new byte[selectedFile.Size];
+        await selectedFile.OpenReadStream().ReadAsync(buffer);
+        tempCoverImage = buffer;
+
+    }
+
+
+    private string GetImageSrc(byte[]? coverImage)
+    {
+        if (coverImage == null || coverImage.Length == 0)
+            return "https://cdn.iconscout.com/icon/free/png-256/free-photo-camera-1780425-1517754.png";
+        //return null;
+        var base64Image = Convert.ToBase64String(coverImage);
+        return $"data:image/png;base64,{base64Image}";
+    }
+
+
+    // ==================================  for form ==============================================
+    private NewBookForm model = new NewBookForm();
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    internal class NewBookForm
+    {
+        [Required]
+        public string Title { get; set; } = "";
+        public string? Description { get; set; } = "";
+        public string? Author { get; set; } = "";
+        public int Rate { get; set; }
+        public byte[]? CoverImage { get; set; }
+
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Submit(EditContext context)
+    {
+        if (context.Validate())
+        {
+            MudDialog.Close<Book>(new Book
+                {
+                    Author = model.Author,
+                    Description = model.Description,
+                    Rate = model.Rate,
+                    Title = model.Title,
+                    CoverImage = tempCoverImage
+
+                });
+        }
+    }
+}
+
