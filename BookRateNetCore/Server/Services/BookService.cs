@@ -22,31 +22,35 @@ namespace BookRateNetCore.Client.Services
 
         public void Create(Book book)
         {
-            _context.Books.Add(book);
-            _context.SaveChanges();
+            //_context.Books.Add(book);
+            //_context.SaveChanges();
+            throw new NotImplementedException();
         }
 
         public async Task Delete(Guid bookId)
         {
-            var book = _context.Books.FirstOrDefault(b => b.Id == bookId);
-            if (book is null)
-                return;
+            //var book = _context.Books.FirstOrDefault(b => b.Id == bookId);
+            //if (book is null)
+            //    return;
 
-            _context.Books.Remove(book);
-            _context.SaveChanges();
+            //_context.Books.Remove(book);
+            //_context.SaveChanges();
+            throw new NotImplementedException();
+
         }
 
         public async Task DeleteAll()
         {
-            _context.Books.RemoveRange(_context.Books);
-            _context.SaveChanges();
+            //_context.Books.RemoveRange(_context.Books);
+            //_context.SaveChanges();
             //await _context.SaveChangesAsync();
         }
 
         public List<Book> GetAll()
         {
-            var books = _context.Books.ToList();
-            return books;
+            //var books = _context.Books.ToList();
+            //return books;
+            throw new NotImplementedException();
         }
 
 

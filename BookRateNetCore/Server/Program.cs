@@ -16,6 +16,7 @@ builder.Services.AddScoped<BookSeeder>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookSeeder, BookSeeder>();
 
+builder.Services.AddMediatR( cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly) );
 
 var app = builder.Build();
 

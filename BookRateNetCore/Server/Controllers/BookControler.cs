@@ -1,9 +1,13 @@
 ﻿using BookRateNetCore.Client.Services;
 using BookRateNetCore.Server.Persistence;
 using BookRateNetCore.Shared.Models;
+using BookRateNetCore.Shared.Queries;
 using BookRateNetCore.Shared.Services;
+using BookRateNetCore.Shared.Commands;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using BookRateNetCore.Server.Commands;
 
 namespace BookRateNetCore.Server.Controllers
 {
@@ -13,34 +17,35 @@ namespace BookRateNetCore.Server.Controllers
     public class BookControler : ControllerBase
     {
 
-        private readonly IBookService _bookService;
         private readonly IBookSeeder _bookSeeder;
+        private readonly IMediator _mediator;
 
-
-        public BookControler(IBookService bookService, IBookSeeder bookSeeder)
+        public BookControler(IMediator mediator, IBookSeeder bookSeeder)
         {
-            _bookService = bookService;
             _bookSeeder = bookSeeder;
+            _mediator = mediator;
         }
+
+
 
         [HttpGet]
         [Route("GetBooks")]
         public ActionResult<List<Book>> GetAll()
         {
-            var books = _bookService.GetAll();
+            var books = _mediator.Send(new GetAllBookQuery());
             return Ok(books);
-
-            //return _bookService.GetAll();
-
         }
+
+
 
         [HttpPost]
         [Route("AddBook")]
-        public ActionResult AddProduct([FromBody] Book book)
+        public ActionResult AddBook([FromBody] CreateBookCommand command)
         {
-            _bookService.Create(book);
+            _mediator.Send(command);
             return Ok();
         }
+
 
 
         [HttpPost]
@@ -51,11 +56,12 @@ namespace BookRateNetCore.Server.Controllers
             return Ok();
         }
 
-        [HttpDelete]
-        [Route("DeleteBook")]
-        public ActionResult DeleteProduct([FromQuery] Guid bookId)
+
+
+        [HttpDelete("DeleteBook")]
+        public async Task<IActionResult> DeleteBook([FromQuery] Guid bookId)
         {
-            _bookService.Delete(bookId);
+            await _mediator.Send(new DeleteBookCommand(bookId));
             return Ok();
         }
 
@@ -63,9 +69,9 @@ namespace BookRateNetCore.Server.Controllers
 
         [HttpDelete]
         [Route("DeleteAll")]
-        public ActionResult DeleteAll()
+        public async Task<ActionResult> DeleteAll()
         {
-            _bookService.DeleteAll();
+            await _mediator.Send(new DeleteAllBooksCommand());
             return Ok();
         }
 

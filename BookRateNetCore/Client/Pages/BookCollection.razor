@@ -89,13 +89,19 @@
     //override method
     protected override async Task OnInitializedAsync()
     {
-        Books = await httpClient.GetFromJsonAsync<List<Book>>("api/Book/GetBooks");
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+        Books = response.Result;
+
         totalPages = CalculateTotalPages();
     }
 
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Books = await httpClient.GetFromJsonAsync<List<Book>>("api/Book/GetBooks");
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+        Books = response.Result;
+
+        totalPages = CalculateTotalPages();
     }
 
 
@@ -105,7 +111,10 @@
     private async Task AddBookAction(Book book)
     {
         await httpClient.PostAsJsonAsync<Book>($"api/Book/AddBook", book);
-        Books = await httpClient.GetFromJsonAsync<List<Book>>("api/Book/GetBooks");
+
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+        Books = response.Result;
+
         totalPages = CalculateTotalPages();
 
     }
@@ -115,7 +124,9 @@
         HttpResponseMessage responseMessage = await httpClient.DeleteAsync($"api/Book/DeleteAll");
         if (responseMessage.IsSuccessStatusCode)
         {
-            Books = await httpClient.GetFromJsonAsync<List<Book>>("api/Book/GetBooks");
+            var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+            Books = response.Result;
+
             totalPages = CalculateTotalPages();
         }
         else
@@ -127,7 +138,9 @@
     private async Task SeedRandomAction()
     {
         await httpClient.PostAsJsonAsync($"api/Book/SeedRandom", 0);
-        Books = await httpClient.GetFromJsonAsync<List<Book>>("api/Book/GetBooks");
+
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+        Books = response.Result;
     }
 
 
@@ -151,6 +164,7 @@
     //delete all dialog when click delete all button
     private async Task DeleteAll()
     {
+        //pass parameters to dialog component for confirmation of delete all records
         var parameters = new DialogParameters<DeleteBookDialog>
         {
             { x => x.ContentText, "Do you really want to delete all records? This process cannot be undone." },
@@ -162,6 +176,7 @@
         var dialog = await DialogService.ShowAsync<DeleteBookDialog>("Delete", parameters, options);
         var result = await dialog.Result;
 
+        //if user confirm dlete records invoke DeleteAllAction method
         if (result.Data is not null)
         {
             await DeleteAllAction();
@@ -177,7 +192,9 @@
     //to refresh the page after delete BookObject from the page
     private async Task RefreshPage()
     {
-        Books = await httpClient.GetFromJsonAsync<List<Book>>("api/Book/GetBooks");
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+        Books = response.Result;
+
         totalPages = CalculateTotalPages();
         StateHasChanged();
     }
