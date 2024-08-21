@@ -15,6 +15,10 @@
 
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 30px;">
+@*     <MudButton OnClick="NawigeteToNewBook" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">
+        Add Book - new page
+    </MudButton> *@
+
     <MudButton OnClick="OpenNewBookDialog" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">
         Add Book
     </MudButton>
@@ -90,7 +94,11 @@
     protected override async Task OnInitializedAsync()
     {
         var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
-        Books = response.Result;
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
+
 
         totalPages = CalculateTotalPages();
     }
@@ -99,7 +107,10 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
-        Books = response.Result;
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
 
         totalPages = CalculateTotalPages();
     }
@@ -113,7 +124,10 @@
         await httpClient.PostAsJsonAsync<Book>($"api/Book/AddBook", book);
 
         var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
-        Books = response.Result;
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
 
         totalPages = CalculateTotalPages();
 
@@ -125,7 +139,10 @@
         if (responseMessage.IsSuccessStatusCode)
         {
             var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
-            Books = response.Result;
+            if (response is not null)
+            {
+                Books = response.Result;
+            }
 
             totalPages = CalculateTotalPages();
         }
@@ -140,7 +157,10 @@
         await httpClient.PostAsJsonAsync($"api/Book/SeedRandom", 0);
 
         var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
-        Books = response.Result;
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
     }
 
 
@@ -150,15 +170,19 @@
         var dialog = DialogService.Show<NewBookDialog>();
         var result = await dialog.Result;
 
-        if (result.Data is not null)
+        if(result is not null)
         {
-            var newBook = result.Data as Book;
-
-            if (newBook != null)
+            if (result.Data is not null)
             {
-                await AddBookAction(newBook);
+                var newBook = result.Data as Book;
+
+                if (newBook != null)
+                {
+                    await AddBookAction(newBook);
+                }
             }
         }
+
     }
 
     //delete all dialog when click delete all button
@@ -177,10 +201,15 @@
         var result = await dialog.Result;
 
         //if user confirm dlete records invoke DeleteAllAction method
-        if (result.Data is not null)
+
+        if(result is not null)
         {
-            await DeleteAllAction();
+            if (result.Data is not null)
+            {
+                await DeleteAllAction();
+            }
         }
+
     }
 
     //use in future
@@ -206,5 +235,10 @@
         if (totalPages == 0)
             return Books.Count / itemsPerPage;
         return (Books.Count / itemsPerPage) + 1;
+    }
+
+    private void NawigeteToNewBook()
+    {        
+        NavigationManager.NavigateTo("/newbook");
     }
 }
