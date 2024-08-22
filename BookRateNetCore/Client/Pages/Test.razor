@@ -1,1 +1,333 @@
-﻿
+﻿@using BookRateNetCore.Shared.Dtos
+@using BookRateNetCore.Shared.Models
+@using System.ComponentModel.DataAnnotations;
+@using BookRateNetCore.Shared.Models
+@using MudBlazor
+
+@inject IDialogService DialogService
+
+@inject NavigationManager NavigationManager
+
+@page "/Test"
+
+<div Style="display: flex; margin: 0; width: 100%; height: 100%; box-sizing: border-box;">
+    <!-- Left side for image holder -->
+    <div Style="display: flex; flex-direction: column; align-items: center; width: 35%; margin: 5px 10px; padding: 10px; box-sizing: border-box; height: 100%;">
+        <MudImage Src="@GetImageSrc(tempCoverImage)" ObjectFit="ObjectFit.Cover" Height="300" Width="300" Style="margin-top: 10px;" />
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload" Style="margin-top: 15px;">
+                    Add Image
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
+
+        <div Style="margin-top: 20px; width: 100%;">
+            <!-- Grid for display images -->
+            <MudGrid>
+                <!-- First row with 3 images -->
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: coral;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: darkcyan;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: darkcyan;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+
+                <!-- Second row with 3 images -->
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: darkcyan;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: darkcyan;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: darkcyan;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+            </MudGrid>
+        </div>
+    </div>
+
+
+    <!-- Right side for form -->
+    <div Style="display: flex; flex-direction: column; width: 75%; margin: 5px 10px; padding: 10px; box-sizing: border-box; height: 100%; justify-content: space-between;">
+        <div>
+            <MudText Style="text-align:center; font-size:26px;">Add book</MudText>
+        </div>
+        <div Style="margin-top:20px;">
+            <!-- Flexbox container for Title and Select -->
+            <div Style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <MudTextField T="string" Label="Title" Variant="Variant.Filled" Style="width: 600px;" />
+                <MudTextField T="string" Label="Publisher" Variant="Variant.Filled" Style="width: 600px;" />
+
+
+            </div>
+
+            <div Style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <MudTextField T="string" Label="Author" Variant="Variant.Filled" Style="width: 600px; " />
+                <MudDatePicker Label="Publication date" />
+                <MudTextField T="int" Label="Page Count" Variant="Variant.Filled" Style="width: 100px; " />
+
+                <MudSelect T="string" Label="Category" Variant="Variant.Filled" Style="width: 200px; ">
+                    <MudSelectItem Value="@("Horror")" />
+                    <MudSelectItem Value="@("Komputery")" />
+                    <MudSelectItem Value="@("Chemia")" />
+                    <MudSelectItem Value="@("Inne")" />
+                </MudSelect>
+
+            </div>
+
+
+            <MudTextField Label="Description" @bind-Value="model.Description" For="@( () => model.Description )" Lines="12" Style="" />
+
+
+        </div>
+
+        <div Style="display: flex; justify-content: flex-end; margin-top:40px;">
+            <br />
+            <MudText>Your Rating: </MudText>
+
+            <MudRating ReadOnly="false" @bind-SelectedValue="model.Rate" Size="Size.Large" />
+            <br />
+
+        </div>
+
+        <div Style=" margin-top: 40px; display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+            <!-- Przycisk po lewej stronie -->
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Book" @onclick="Cancel">
+                Prev
+            </MudButton>
+
+            <!-- Przycisk po prawej stronie -->
+            <div Style="display: flex; gap: 10px;">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
+                    Submit
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Cancel" @onclick="Cancel">
+                    Cancel
+                </MudButton>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<MudPaper Style="display: flex; margin: 0; width: 100%; height: 100%; box-sizing: border-box; background-color: aquamarine;">
+    <!-- Left side for image holder -->
+    <MudPaper Style="display: flex; flex-direction: column; align-items: center; width: 35%; margin: 5px 10px; background-color: aqua; padding: 10px; box-sizing: border-box; height: 100%;">
+        <MudImage Src="@GetImageSrc(tempCoverImage)" ObjectFit="ObjectFit.Cover" Height="300" Width="300" Style="background-color: cadetblue; margin-top: 10px;" />
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload" Style="margin-top: 15px;">
+                    Add Image
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
+
+        <MudPaper Style="margin-top: 20px; width: 100%;">
+            <!-- Grid for display images -->
+            <MudGrid>
+                <!-- First row with 3 images -->
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: coral;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    @* <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: darkcyan;"> *@
+                    <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    @* </MudPaper> *@
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: coral;">
+                        <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Second row with 3 images -->
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: cornflowerblue;">
+                        <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: darkcyan;">
+                        <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="4" md="4" Style="display: flex; justify-content: center; align-items: center;">
+                    <MudPaper Style="padding: 20px; text-align: center; height: 200px; width: 100%; overflow: hidden; background-color: coral;">
+                        <MudImage Src="images/pngwing.com.png" ObjectFit="ObjectFit.Cover" Style="object-fit: cover; display: block; max-width: 100%; max-height: 100%;" />
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudPaper>
+
+
+    <!-- Right side for form -->
+    <MudPaper Style="display: flex; flex-direction: column; width: 75%; margin: 5px 10px; background-color: greenyellow; padding: 10px; box-sizing: border-box; height: 100%; justify-content: space-between;">
+        <MudPaper>
+            <MudText Style="text-align:center; font-size:26px;">Add book</MudText>
+        </MudPaper>
+        <MudPaper Style="background-color:darkslateblue; margin-top:20px;">
+            <!-- Flexbox container for Title and Select -->
+            <MudPaper Style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <MudTextField T="string" Label="Title" Variant="Variant.Filled" Style="width: 600px; background-color:dimgrey;" />
+                <MudTextField T="string" Label="Publisher" Variant="Variant.Filled" Style="width: 600px; background-color:dimgrey;" />
+
+
+            </MudPaper>
+
+            <MudPaper Style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <MudTextField T="string" Label="Author" Variant="Variant.Filled" Style="width: 600px; " />
+                <MudDatePicker Label="Publication date" />
+                <MudTextField T="int" Label="Page Count" Variant="Variant.Filled" Style="width: 100px; " />
+
+                <MudSelect T="string" Label="Category" Variant="Variant.Filled" Style="width: 200px; ">
+                    <MudSelectItem Value="@("Horror")" />
+                    <MudSelectItem Value="@("Komputery")" />
+                    <MudSelectItem Value="@("Chemia")" />
+                    <MudSelectItem Value="@("Inne")" />
+                </MudSelect>
+
+            </MudPaper>
+            <MudPaper>
+
+            </MudPaper>
+
+
+
+            <MudTextField Label="Description" @bind-Value="model.Description" For="@( () => model.Description )" Lines="12" Style="background-color:dimgrey;" />
+
+
+        </MudPaper>
+
+        <MudPaper Style="display: flex; justify-content: flex-end; margin-top:40px;">
+            <br />
+            <MudText>Your Rating: </MudText>
+
+            <MudRating ReadOnly="false" @bind-SelectedValue="model.Rate" Size="Size.Large" />
+            <br />
+
+        </MudPaper>
+
+        <MudPaper Style="background-color: goldenrod; margin-top: 40px; display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+            <!-- Przycisk po lewej stronie -->
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Book" @onclick="Cancel">
+                Prev
+            </MudButton>
+
+            <!-- Przycisk po prawej stronie -->
+            <div Style="display: flex; gap: 10px;">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
+                    Submit
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Cancel" @onclick="Cancel">
+                    Cancel
+                </MudButton>
+            </div>
+        </MudPaper>
+
+
+
+
+    </MudPaper>
+
+</MudPaper>
+
+
+
+
+@code {
+    private bool showColor = true;
+
+    private NewBookDto model = new NewBookDto();
+
+    // ================================== for image ==============================================
+    //IList<IBrowserFile> _files = new List<IBrowserFile>();
+
+    private IBrowserFile? selectedFile;
+    private byte[] tempCoverImage = Array.Empty<byte>();
+
+    private async Task UploadFiles(IBrowserFile file)
+    {
+        selectedFile = file;
+        var buffer = new byte[selectedFile.Size];
+        await selectedFile.OpenReadStream().ReadAsync(buffer);
+        tempCoverImage = buffer;
+
+    }
+
+    private string GetImageSrc(byte[]? coverImage)
+    {
+        if (coverImage == null || coverImage.Length == 0)
+            return "https://cdn.iconscout.com/icon/free/png-256/free-photo-camera-1780425-1517754.png";
+        //return null;
+        var base64Image = Convert.ToBase64String(coverImage);
+        return $"data:image/png;base64,{base64Image}";
+    }
+
+
+    // ==================================  for form ==============================================
+    //private NewBookForm model = new NewBookForm();
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    internal class NewBookForm
+    {
+        [Required]
+        public string Title { get; set; } = "";
+        public string? Description { get; set; } = "";
+        public string? Author { get; set; } = "";
+        public int Rate { get; set; }
+        public byte[]? CoverImage { get; set; }
+
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Submit(EditContext context)
+    {
+        if (context.Validate())
+        {
+            MudDialog.Close<Book>(new Book
+                {
+                    Author = model.Author,
+                    Description = model.Description,
+                    Rate = model.Rate,
+                    Title = model.Title,
+                    CoverImage = tempCoverImage
+
+                });
+        }
+    }
+
+}
