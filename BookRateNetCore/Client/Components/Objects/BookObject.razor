@@ -77,7 +77,7 @@
 
     private async Task Delete(Book book)
     {
-        var parameters = new DialogParameters<DeleteBookDialog>
+        var parameters = new DialogParameters<ConfirmDialog>
         {
             { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
@@ -85,7 +85,7 @@
         };
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var dialog = await DialogService.ShowAsync<DeleteBookDialog>("Delete", parameters, options);
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Delete", parameters, options);
         var result = await dialog.Result;
 
         if (result.Data is not null)
@@ -94,6 +94,8 @@
             await DeleteAction(book);
             await Refresh.InvokeAsync();
         }
+
+
     }
 
 

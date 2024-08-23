@@ -99,7 +99,6 @@
             Books = response.Result;
         }
 
-
         totalPages = CalculateTotalPages();
     }
 
@@ -189,7 +188,7 @@
     private async Task DeleteAll()
     {
         //pass parameters to dialog component for confirmation of delete all records
-        var parameters = new DialogParameters<DeleteBookDialog>
+        var parameters = new DialogParameters<ConfirmDialog>
         {
             { x => x.ContentText, "Do you really want to delete all records? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
@@ -197,7 +196,7 @@
         };
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var dialog = await DialogService.ShowAsync<DeleteBookDialog>("Delete", parameters, options);
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Delete", parameters, options);
         var result = await dialog.Result;
 
         //if user confirm dlete records invoke DeleteAllAction method

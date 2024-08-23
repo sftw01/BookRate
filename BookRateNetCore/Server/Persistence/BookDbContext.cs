@@ -10,6 +10,7 @@ namespace BookRateNetCore.Server.Persistence
         //}
 
         public DbSet<Book> Books { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

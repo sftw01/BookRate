@@ -14,7 +14,7 @@ namespace BookRateNetCore.Server.Seeders
         }
 
 
-        public async Task Seed()
+        public async Task SeedBook()
         {
             if (await _dbContext.Database.CanConnectAsync())
             {
@@ -28,6 +28,40 @@ namespace BookRateNetCore.Server.Seeders
                 }
             }
         }
+
+        public async Task SeedCategory()
+        {
+            if (await _dbContext.Database.CanConnectAsync())
+            {
+                if (!_dbContext.Categories.Any())
+                {
+                    var categories = GetCategories();
+
+                    _dbContext.Categories.AddRange(categories);
+
+                    _dbContext.SaveChanges();
+                }
+            }
+        }
+
+        
+        private List<Category> GetCategories()
+        {
+            var categories = new List<Category>()
+            {
+                new Category("Science"),
+                new Category("Programming"),
+                new Category("Design Patterns"),
+                new Category("Mathematics"),
+                new Category("Artificial Intelligence"),
+                new Category("Cybersecurity"),
+                new Category("Data Science"),
+                new Category("Software Engineering")
+            };
+
+            return categories;
+        }
+
 
         private IEnumerable<Book> GetBooks()
         {

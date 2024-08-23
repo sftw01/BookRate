@@ -3,6 +3,8 @@ using BookRateNetCore.Server.Persistence;
 using BookRateNetCore.Server.Seeders;
 using BookRateNetCore.Shared.Services;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.Hosting;
+using System.Net.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,16 +17,20 @@ builder.Services.AddDbContext<BookDbContext>();
 builder.Services.AddScoped<BookSeeder>();
 
 //builder.Services.AddScoped<IBookService, BookService>();                  // not used, replaced by MediatR
-builder.Services.AddScoped<IBookSeeder, BookSeeder>();
 
+builder.Services.AddScoped<IBookSeeder, BookSeeder>();
 builder.Services.AddMediatR( cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly) );
+
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
 
 var app = builder.Build();
 
 
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<BookSeeder>();
-await seeder.Seed();
+await seeder.SeedBook();
+await seeder.SeedCategory();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

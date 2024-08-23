@@ -8,6 +8,7 @@ namespace BookRateNetCore.Shared.Services
 {
     public interface IBookSeeder
     {
-        Task Seed();
+        Task SeedBook();
+        Task SeedCategory();
     }
 }

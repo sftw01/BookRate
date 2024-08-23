@@ -8,6 +8,8 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BookRateNetCore.Server.Commands;
+using BookRateNetCore.Shared.Dtos;
+using BookRateNetCore.Server.Queries;
 
 namespace BookRateNetCore.Server.Controllers
 {
@@ -16,17 +18,15 @@ namespace BookRateNetCore.Server.Controllers
     [ApiController]
     public class BookControler : ControllerBase
     {
-
         private readonly IBookSeeder _bookSeeder;
         private readonly IMediator _mediator;
-
         public BookControler(IMediator mediator, IBookSeeder bookSeeder)
         {
             _bookSeeder = bookSeeder;
             _mediator = mediator;
         }
 
-
+        // ========================================= Book =========================================
 
         [HttpGet]
         [Route("GetBooks")]
@@ -35,7 +35,6 @@ namespace BookRateNetCore.Server.Controllers
             var books = _mediator.Send(new GetAllBookQuery());
             return Ok(books);
         }
-
 
 
         [HttpPost]
@@ -47,24 +46,12 @@ namespace BookRateNetCore.Server.Controllers
         }
 
 
-
-        [HttpPost]
-        [Route("SeedRandom")]
-        public ActionResult Seed()
-        {
-            _bookSeeder.Seed();
-            return Ok();
-        }
-
-
-
         [HttpDelete("DeleteBook")]
         public async Task<IActionResult> DeleteBook([FromQuery] Guid bookId)
         {
             await _mediator.Send(new DeleteBookCommand(bookId));
             return Ok();
         }
-
 
 
         [HttpDelete]
@@ -75,15 +62,55 @@ namespace BookRateNetCore.Server.Controllers
             return Ok();
         }
 
+        // ========================================= Category =========================================
 
 
+        [HttpGet]
+        [Route("GetCategory")]
+        public ActionResult<List<CategoryDto>> GetCategory()
+        {
+            var categories = _mediator.Send(new GetAllCategoryQuery());
+            return Ok(categories);
+        }
 
 
+        [HttpPost]
+        [Route("AddCategory")]
+        public ActionResult AddCategory([FromBody] AddCategoryCommand command)
+        {
+            _mediator.Send(command);
+            return Ok();
+        }
 
 
+        [HttpDelete]
+        [Route("DeleteCategory/{categoryId}")]
+        public async Task<ActionResult> DeleteCategory([FromRoute] Guid categoryId)
+        {
+            var command = new DeleteCategoryCommand(categoryId);
+            await _mediator.Send(command);
+            return Ok();
+        }
 
 
+        [HttpPut]
+        [Route("UpdateCategory")]
+        public async Task<ActionResult> UpdateCategory([FromBody] UpdateCategoryCommand command)
+        {
+            await _mediator.Send(command);
+            return Ok();
+        }
 
+
+        // ========================================= Seed =========================================
+
+        [HttpPost]
+        [Route("SeedRandom")]
+        public ActionResult Seed()
+        {
+            _bookSeeder.SeedBook();
+            return Ok();
+        }
 
 
     }

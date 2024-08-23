@@ -1,0 +1,86 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using BookRateNetCore.Shared.Dtos
+@using BookRateNetCore.Shared.Models
+@using System.Timers;
+
+
+@inject IDialogService DialogService
+<EditForm Model="@model" OnSubmit="Submit">
+    <DataAnnotationsValidator />
+    <MudDialog>
+        <DialogContent>
+            <MudPaper Width="400px">
+                <MudText>@ContentText</MudText>
+                <br />
+                <MudTextField Value="@Category.Id.ToString()"  Label="Category ID" ReadOnly="true" />
+                <br />
+                <MudTextField Value="@Category.Name.ToString()" Label="Current name" ReadOnly="true" />
+                <br />
+                <br />
+
+                <MudTextField @bind-Value="model.Name" Label="New name" For="@( () => model.Name )" ReadOnly="false" Variant="Variant.Outlined" />
+                <br />
+            </MudPaper>
+        </DialogContent>
+
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="@Color" Variant="Variant.Filled" ButtonType="ButtonType.Submit">@ButtonText</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+
+
+@code {
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public CategoryDto Category { get; set; }
+
+    [Parameter]
+    public string ContentText { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    new CategoryDtoValidator model = new CategoryDtoValidator();  //for validation purposes
+
+    protected override void OnInitialized()
+    {
+        //fill the model with the current category data
+
+        model.Name = Category.Name;
+    }
+
+
+
+    private void Submit(EditContext context)
+    {
+        if (context.Validate())
+        {
+            //if validation is succes, close dialog and pass CategoryDto to parent component
+            Category.Name = model.Name;             //update the category name only, without changing the ID
+
+            MudDialog.Close<CategoryDto>(Category);
+        }
+        Console.WriteLine("Submit" + model.Name, "---" + Category.Name);
+    }
+
+
+    //for validation purposes
+    private class CategoryDtoValidator : CategoryDto
+    {
+        [Required(ErrorMessage = "Category name is required.")]
+        [MaxLength(20, ErrorMessage = "Category name is too long.")]
+        public string Name { get; set; }
+    }
+
+}

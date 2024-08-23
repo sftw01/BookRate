@@ -1,0 +1,68 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using BookRateNetCore.Shared.Dtos
+@using BookRateNetCore.Shared.Models
+@using System.Timers;
+
+
+@inject IDialogService DialogService
+<EditForm Model="@model" OnSubmit="Submit">
+    <DataAnnotationsValidator />
+    <MudDialog>
+        <DialogContent>
+            <MudText>@ContentText</MudText>
+            <br />
+            <br />
+            <MudTextField @bind-Value="model.Name" For="@( () => model.Name )" Label="New category" ReadOnly="false" Variant="Variant.Outlined" />
+            <br />
+
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="@Color" ButtonType="ButtonType.Submit" Variant="Variant.Filled">@ButtonText</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+
+
+@code {
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public string ContentText { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; }
+
+    //public CategoryDto Category { get; set; } = new CategoryDto { Name = "" };
+    private CategoryDtoValidator model = new CategoryDtoValidator();                        //for validation purposes
+
+    private void Cancel() => MudDialog.Cancel();
+
+
+
+    private void Submit(EditContext context)
+    {
+        if (context.Validate())
+        {
+            //if validation is succes, close dialog and pass CategoryDto to parent component
+            MudDialog.Close<CategoryDto>(new CategoryDto
+                {
+                    Name = model.Name
+                });
+        }
+    }
+
+    //for validation purposes
+    private class CategoryDtoValidator
+    {
+        [Required(ErrorMessage = "Category name is required.")]
+        [MaxLength(20, ErrorMessage = "Category name is too long.")]
+        public string Name { get; set; }
+    }
+}

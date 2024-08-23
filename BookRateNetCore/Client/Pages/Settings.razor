@@ -1,0 +1,159 @@
+﻿@inject IDialogService DialogService;
+
+
+@inject IBookService BookService
+
+
+@page "/Settings"
+@using BookRateNetCore.Client.Components.Dialogs
+@using BookRateNetCore.Shared.Dtos
+@using BookRateNetCore.Shared.Services
+
+<div style="background-color:aqua; width:100%; height:90vh;">
+    <div style="text-align:center; letter-spacing:3px; background-color:aquamarine; height:100%;">
+        <p style="font-size:26px;">Settings</p>
+
+        <!-- Główny kontener z ustawionym flexboxem -->
+        <div style="display:flex; justify-content:space-around; height:85vh;">
+
+            <!-- categories list -->
+            <div style="background-color:chartreuse; height:40%; width:30%;">
+                <p style="font-size:22px; text-align:center;">Book categories</p>
+                <MudPaper Class="d-flex flex-column overflow-x-auto " Height="40vh">
+                    <MudSimpleTable Style="overflow-x: auto;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th style="width:300px;">Name</th>
+                                <th>Action <MudButton Variant="Variant.Filled" Color="Color.Success" Style="margin-left:25px;" OnClick="AddCategory">Add</MudButton> </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var Category in CategoryList)
+                            {
+                                var x = index;
+
+                                <tr>
+                                    <td>@x</td>
+                                    <td>@Category.Name</td>
+                                    <td>
+                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => Edit(Category))">Edit</MudButton>
+                                        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="(() => Delete(Category.Id))">Delete</MudButton>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                </MudPaper>
+            </div>
+            <!-- Drugi div -->
+            <div style="background-color:burlywood; height:100%; width:40%;">
+                <p style="font-size:22px; text-align:center;">Default images</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+@code {
+    private int index = 1;
+    private List<CategoryDto> CategoryList = new List<CategoryDto>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        CategoryList = await BookService.GetCategories();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        ResetIndex();
+    }
+
+    private void ResetIndex()
+    {
+        index = 1;
+    }
+
+    private async Task Delete(Guid id)
+    {
+        //pass paremeters to dialog like as button color, text, content text
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
+            { x => x.ButtonText, "Delete category" },
+            { x => x.Color, Color.Error }
+        };
+
+        //setups for dialog - close button, max width
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge };
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+
+        //if user confirm delete action then delete category
+        if (result.Data is not null)
+        {         
+            await BookService.DeleteCategory(id);
+            CategoryList = await BookService.GetCategories();
+           
+        }
+    }
+
+    // handle button edit category
+    private async void Edit(CategoryDto category)
+    {
+        //pass paremeters to EditCategoryDialog like as button color, text, content text and category to edit
+        var parameters = new DialogParameters<EditCategoryDialog>
+        {
+            { x => x.ContentText, "Edit category." },
+            { x => x.ButtonText, "Save changes" },
+            { x => x.Color, Color.Primary },
+            { x => x.Category, category}
+        };
+
+        //setups for dialog - close button, max width
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large };
+        var dialog = await DialogService.ShowAsync<EditCategoryDialog>("Edit", parameters, options);
+        var result = await dialog.Result;
+
+        if (result.Data is not null)
+        {
+            await BookService.UpdateCategory(result.Data as CategoryDto);
+
+            StateHasChanged();
+        }
+    }
+
+    // handle button add category
+    private async void AddCategory()
+    {
+        //pass paremeters to AddCategoryDialog like as button color, text, content text
+        var parameters = new DialogParameters<AddCategoryDialog>
+        {
+            { x => x.ContentText, "Add new category." },
+            { x => x.ButtonText, "Add" },
+            { x => x.Color, Color.Success }
+        };
+
+        //setups for dialog - close button, max width
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = await DialogService.ShowAsync<AddCategoryDialog>("", parameters, options);
+        var result = await dialog.Result;
+
+
+        if (result.Data is not null)
+        {
+            await BookService.AddCategory(result.Data as CategoryDto);
+            CategoryList = await BookService.GetCategories();
+
+            StateHasChanged();
+        }
+    }
+}
+
+

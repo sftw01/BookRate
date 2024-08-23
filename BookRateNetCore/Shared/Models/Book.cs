@@ -16,6 +16,7 @@ namespace BookRateNetCore.Shared.Models
         public byte[]? CoverImage { get; set; }
         public string? Publisher { get; set; }
         public DateTime? PublishDate { get; set; }
+        //public DateTime? CreatedAt { get; set; }
         public int? Pages { get; set; }
 
     }
