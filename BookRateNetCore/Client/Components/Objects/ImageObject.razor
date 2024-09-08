@@ -4,23 +4,23 @@
 
     <!-- Lewa strona: Podgląd -->
     @* <div style="width: 40%; margin-left:20px;"> *@
-        <MudPaper Style="margin-top:200px; width:55%; margin-left:20px;" Elevation="0">
-            <MudImage Src="@GetImageSrc1(tempCoverImage)" ObjectFit="ObjectFit.Cover" Height="400" Width="300" Style="margin-top: 10px;" />
-            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
-                <ActivatorContent>
-                    <div style="display: flex; justify-content: center; align-items: center;">
+    <MudPaper Style="margin-top:200px; width:55%; margin-left:20px;" Elevation="0">
+        <MudImage Src="@GetImageSrc1(tempCoverImage)" ObjectFit="ObjectFit.Cover" Height="400" Width="300" Style="margin-top: 10px;" />
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+            <ActivatorContent>
+                <div style="display: flex; justify-content: center; align-items: center;">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FolderOpen" Style="margin-top: 10px; width: 160px; height:60px;">
-                            Browse
-                        </MudButton>
-                    </div>
-                </ActivatorContent>
-            </MudFileUpload>
-        </MudPaper>
+                        Browse
+                    </MudButton>
+                </div>
+            </ActivatorContent>
+        </MudFileUpload>
+    </MudPaper>
     @* </div> *@
 
     <!-- Prawa strona: Obrazy z foreach -->
     <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; margin-left:70px;">
-         
+
         @foreach (var imageObject in ListImage.ImageList)
         {
             <MudPaper Style="position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 150px; height: 200px; margin-bottom: 20px;">
@@ -92,7 +92,7 @@
         tempCoverImage = buffer;
 
         //max 4 images in list, if more than 4, remove first to obtain circular list
-        if(ListImage.ImageList.Count > 3)
+        if (ListImage.ImageList.Count > 3)
         {
             ListImage.ImageList.RemoveAt(0);
         }
@@ -102,10 +102,11 @@
         //if image was added as first image, set it as cover image
         if (ListImage.ImageList.Count == 1)
         {
-            ListImage.ResetCoverImage();        
-            ListImage.ImageList[0].IsAsCover = true;            
+            ListImage.ResetCoverImage();
+            ListImage.ImageList[0].IsAsCover = true;
         }
-        
+
+        tempCoverImage = ListImage.ImageList[0].Image;
     }
 
 
@@ -113,19 +114,32 @@
     {
         ListImage.ImageList.Remove(Image);
 
-        //if after deleting there is no image, set cover image to null, else set to first image
+        //if after deleting there is no image, set cover image to null, else set to first image as cover
         var image = ListImage.ImageList.FirstOrDefault();
-        if(image != null)
-        {
-            tempCoverImage = image.Image;
-            image.IsAsCover = true;
-        }
-        else
+        if (image == null)
         {
             tempCoverImage = Array.Empty<byte>();
         }
 
-     
+        //if deleted image was set as cover, set first image as cover
+        if (Image.IsAsCover)
+        {
+            ListImage.ResetCoverImage();
+
+            //check if there is any image in list
+            if (ListImage.ImageList.Count > 0)
+            {
+                ListImage.ImageList[0].IsAsCover = true;
+                //set first image as cover image - refresh
+                tempCoverImage = ListImage.ImageList[0].Image;
+            }
+            else
+            {
+                tempCoverImage = Array.Empty<byte>();
+            }
+
+        }
+
         StateHasChanged();
     }
 
