@@ -10,10 +10,13 @@ namespace BookRateNetCore.Shared.Services
 {
     public interface IBookService
     {
+        // ============================= services for categry handlers =====================================
         Task<List<CategoryDto>> GetCategories();
         Task DeleteCategory(Guid id);
         Task UpdateCategory(CategoryDto category);
         Task AddCategory(CategoryDto category);
+
+        // ============================= services for book handlers =====================================
 
     }
 }

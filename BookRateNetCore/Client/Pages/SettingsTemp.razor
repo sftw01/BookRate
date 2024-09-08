@@ -1,4 +1,4 @@
-﻿@page "/Settings"
+﻿@page "/SettingsTemp"
 
 @inject IDialogService DialogService;
 @inject IBookService BookService
@@ -15,7 +15,7 @@
 <div style="width:100%; height:90vh;">
     @* <div style="text-align:center; letter-spacing:3px; background-color:aquamarine; height:100%;"> *@
     <div style="text-align:center; height:100%;">
-        <p style="font-size:26px;">Settings</p>
+        <p style="font-size:26px;">Settings - draft page</p>
 
         <!-- Główny kontener z ustawionym flexboxem -->
         <div style="display:flex; justify-content:space-around; height:85vh;">
@@ -24,7 +24,7 @@
             @* <div style="background-color:chartreuse; height:40%; width:30%;"> *@
             <div style=" height:40%; width:30%;">
                 <p style="font-size:22px; text-align:center;">Book categories</p>
-                <MudPaper Class="d-flex flex-column overflow-x-auto " Height="40vh" Outlined="true" Square="true">
+                <MudPaper Class="d-flex flex-column overflow-x-auto " Height="40vh" Outlined="true">
                     <MudSimpleTable Style="overflow-x: auto;">
                         <thead>
                             <tr>
@@ -57,7 +57,30 @@
             <div style=" height:100%; width:40%;">
                 <p style="font-size:22px; text-align:center;">Default images</p>
 
+                <MudPaper Elevation="4" Class="pa-4">
+                    <MudImage Src="@GetImageSrc(tempCoverImage)" ObjectFit="ObjectFit.Cover" Height="300" Width="300" Style="margin-top: 10px;" />
+                    <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                        <ActivatorContent>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload" Style="margin-top: 15px;">
+                                Add Image
+                            </MudButton>
+                        </ActivatorContent>
+                    </MudFileUpload>
 
+                        @if (imageData != null)
+                        {
+                            <MudItem>
+                                <MudImage Src="@imageData" Alt="Podgląd obrazu" Width="300" />
+                            </MudItem>
+                        }
+
+                        <MudItem Class="mt-4">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitForm">
+                                Prześlij Obraz
+                            </MudButton>
+                        </MudItem>
+                  
+                </MudPaper>
 
             </div>
         </div>
@@ -108,12 +131,12 @@
 
         //if user confirm delete action then delete category
         if (result.Data is not null)
-        {         
+        {
             await BookService.DeleteCategory(id);
             CategoryList = await BookService.GetCategories();
             Snackbar.Add("The category has been successfully deleted.", Severity.Warning);
 
-           
+
         }
     }
 
@@ -172,7 +195,44 @@
 
 
     // ===================================================== for images purposes ====================================================
+    private IBrowserFile file;
+    private string imageData;
 
+    private async Task HandleSelected(InputFileChangeEventArgs e)
+    {
+        file = e.File;
+
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(buffer);
+
+        imageData = $"data:image/png;base64,{Convert.ToBase64String(buffer)}";
+    }
+
+    private void SubmitForm()
+    {
+        // Logika przesyłania obrazu na serwer
+        Console.WriteLine("Obraz przesłany.");
+    }
+
+    private IBrowserFile? selectedFile;
+    private byte[] tempCoverImage = Array.Empty<byte>();
+
+    private async Task UploadFiles(IBrowserFile file)
+    {
+        selectedFile = file;
+        var buffer = new byte[selectedFile.Size];
+        await selectedFile.OpenReadStream().ReadAsync(buffer);
+        tempCoverImage = buffer;
+
+    }
+
+    private string GetImageSrc(byte[]? coverImage)
+    {
+        if (coverImage == null || coverImage.Length == 0)
+            return "https://cdn.iconscout.com/icon/free/png-256/free-photo-camera-1780425-1517754.png";
+        //return null;
+        var base64Image = Convert.ToBase64String(coverImage);
+        return $"data:image/png;base64,{base64Image}";
+    }
 }
-
 
