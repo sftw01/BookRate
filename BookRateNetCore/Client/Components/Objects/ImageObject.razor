@@ -1,0 +1,167 @@
+﻿@using static BookRateNetCore.Client.Pages.NewBook
+
+<div Style="display: flex; flex-direction: row; align-items: flex-start; width: 100%; box-sizing: border-box; height: 100%;">
+
+    <!-- Lewa strona: Podgląd -->
+    @* <div style="width: 40%; margin-left:20px;"> *@
+        <MudPaper Style="margin-top:200px; width:55%; margin-left:20px;" Elevation="0">
+            <MudImage Src="@GetImageSrc1(tempCoverImage)" ObjectFit="ObjectFit.Cover" Height="400" Width="300" Style="margin-top: 10px;" />
+            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                <ActivatorContent>
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FolderOpen" Style="margin-top: 10px; width: 160px; height:60px;">
+                            Browse
+                        </MudButton>
+                    </div>
+                </ActivatorContent>
+            </MudFileUpload>
+        </MudPaper>
+    @* </div> *@
+
+    <!-- Prawa strona: Obrazy z foreach -->
+    <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; margin-left:70px;">
+         
+        @foreach (var imageObject in ListImage.ImageList)
+        {
+            <MudPaper Style="position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 150px; height: 200px; margin-bottom: 20px;">
+                <MudImage Src="@GetImageSrc2(imageObject.Image)"
+                          ObjectFit="ObjectFit.Contain"
+                          Style="display: block; width: 100%; height: 200px;"
+                          @onclick="() => OnImageClick(imageObject)" />
+
+                @if (imageObject.IsAsCover && imageObject.Image is not null) //when image is selected as cover
+                {
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Book"
+                               Color="Color.Info" Size="Size.Small"
+                               Style="position: absolute; top: -5px; left: -20px;">
+                        Cover
+                    </MudButton>
+                }
+
+                @if (imageObject.Image is not null)
+                {
+                    <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Delete"
+                            Size="Size.Small" Style="position: absolute; top: 150px; left: 100px;"
+                            OnClick="() => DeleteImage(imageObject)" />
+                }
+            </MudPaper>
+        }
+    </div>
+
+</div>
+
+
+
+
+@code {
+
+    // ================================== for image ==============================================
+    public ObjectImageList ListImage = new ObjectImageList();
+
+
+    //this class is used for storing the image and information about it
+    public class ObjectImageList
+    {
+        public List<ImageInfo> ImageList { get; set; } = new List<ImageInfo>();
+
+        public void ResetCoverImage()
+        {
+            // Ustaw wszystkie obrazy jako nie-okładka
+            foreach (var imageInfo in ImageList)
+            {
+                imageInfo.IsAsCover = false;
+            }
+        }
+
+        public class ImageInfo
+        {
+            public byte[]? Image { get; set; }
+            public bool IsAsCover { get; set; } = false;
+        }
+    }
+
+    // ============================================= for browsing file ======================================================================
+    private byte[] tempCoverImage = Array.Empty<byte>();
+    private IBrowserFile? selectedFile;
+
+    private async Task UploadFiles(IBrowserFile file)
+    {
+        selectedFile = file;
+        var buffer = new byte[selectedFile.Size];
+        await selectedFile.OpenReadStream().ReadAsync(buffer);
+        tempCoverImage = buffer;
+
+        //max 4 images in list, if more than 4, remove first to obtain circular list
+        if(ListImage.ImageList.Count > 3)
+        {
+            ListImage.ImageList.RemoveAt(0);
+        }
+
+        ListImage.ImageList.Add(new ObjectImageList.ImageInfo { Image = buffer });
+
+        //if image was added as first image, set it as cover image
+        if (ListImage.ImageList.Count == 1)
+        {
+            ListImage.ResetCoverImage();        
+            ListImage.ImageList[0].IsAsCover = true;            
+        }
+        
+    }
+
+
+    void DeleteImage(ObjectImageList.ImageInfo Image)
+    {
+        ListImage.ImageList.Remove(Image);
+
+        //if after deleting there is no image, set cover image to null, else set to first image
+        var image = ListImage.ImageList.FirstOrDefault();
+        if(image != null)
+        {
+            tempCoverImage = image.Image;
+            image.IsAsCover = true;
+        }
+        else
+        {
+            tempCoverImage = Array.Empty<byte>();
+        }
+
+     
+        StateHasChanged();
+    }
+
+    private string GetImageSrc2(byte[]? Image)
+    {
+        if (Image is null)
+        {
+            return "images/pngwing.com.png";
+        }
+
+        var base64Image = Convert.ToBase64String(Image);
+        return $"data:image/png;base64,{base64Image}";
+
+        // return "https://cdn.iconscout.com/icon/free/png-256/free-photo-camera-1780425-1517754.png";
+        return "images/pngwing.com.png";
+    }
+
+    private string GetImageSrc1(byte[]? coverImage)
+    {
+        if (coverImage == null || coverImage.Length == 0)
+            return "https://cdn.iconscout.com/icon/free/png-256/free-photo-camera-1780425-1517754.png";
+        //return null;
+        var base64Image = Convert.ToBase64String(coverImage);
+        return $"data:image/png;base64,{base64Image}";
+    }
+
+
+    private void OnImageClick(ObjectImageList.ImageInfo imageObject)
+    {
+        //Console.WriteLine("click");
+        tempCoverImage = imageObject.Image;
+
+        ListImage.ResetCoverImage();
+
+        imageObject.IsAsCover = true;
+
+        StateHasChanged();
+    }
+}

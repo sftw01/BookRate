@@ -26,6 +26,9 @@
     <Content Update="Components\Dialogs\BookDetailsDialog.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Pages\SettingsTemp.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Pages\Settings.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
