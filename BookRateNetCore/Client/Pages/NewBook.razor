@@ -19,28 +19,11 @@
 <div Style="display: flex; margin: 0; width: 100%; height: 100%; box-sizing: border-box;">
     <!-- Left side for image holder -->
 
-<<<<<<< HEAD
 
     <div Style="margin-top: 20px; width: 100%;">
         <ImageObject></ImageObject>
     </div>
-=======
-        <div Style="margin-top: 20px; width: 100%;">
-            <!-- Grid for display images -->
-            @* <MudGrid> *@
-                <!-- First row with 3 images -->
 
-            
-                        @* <MudItem md="4" Style="display: flex; justify-content: center; align-items: center;"> *@
-                            <ImageObject></ImageObject>
-                        @* </MudItem>                    *@
-
-
-
-            @* </MudGrid> *@
-        </div>
-
->>>>>>> 39290fd8f471d52bbb6338775d8f3361918a295c
 
 
 
@@ -118,37 +101,9 @@
         CategoryList = await BookService.GetCategories();
     }
 
-<<<<<<< HEAD
-=======
 
 
 
-
-    // // ================================== for image ==============================================
-    // //IList<IBrowserFile> _files = new List<IBrowserFile>();
-
-    // private IBrowserFile? selectedFile;
-    // private byte[] tempCoverImage = Array.Empty<byte>();
-
-    // private async Task UploadFiles(IBrowserFile file)
-    // {
-    //     selectedFile = file;
-    //     var buffer = new byte[selectedFile.Size];
-    //     await selectedFile.OpenReadStream().ReadAsync(buffer);
-    //     tempCoverImage = buffer;     
-        
-    //     ListImage.ImageList.Add(new ObjectImageList.ImageInfo { Image = buffer });
-    // }
-
-    // private string GetImageSrc(byte[]? coverImage)
-    // {
-    //     if (coverImage == null || coverImage.Length == 0)
-    //         return "https://cdn.iconscout.com/icon/free/png-256/free-photo-camera-1780425-1517754.png";
-    //     //return null;
-    //     var base64Image = Convert.ToBase64String(coverImage);
-    //     return $"data:image/png;base64,{base64Image}";
-    // }
->>>>>>> 39290fd8f471d52bbb6338775d8f3361918a295c
 
 
     // ==================================  for form ==============================================
