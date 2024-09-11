@@ -11,5 +11,11 @@ namespace BookRateNetCore.Shared.Queries
 {
     public class GetAllBookQuery : IRequest<List<Book>>
     {
+        public Guid? Id { get; set; }
+
+        public GetAllBookQuery(Guid? id)
+        {
+            Id = id;
+        }
     }
 }

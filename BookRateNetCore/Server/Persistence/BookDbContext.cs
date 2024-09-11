@@ -25,5 +25,13 @@ namespace BookRateNetCore.Server.Persistence
         //    modelBuilder.Entity<Book>().Property(b => b.Author).IsRequired();
         //    modelBuilder.Entity<Book>().Property(b => b.Rate).IsRequired();
         //}
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>()
+                .HasMany(b => b.Images)
+                .WithOne(i => i.Book)
+                .HasForeignKey(i => i.BookId);
+        }
     }
 }

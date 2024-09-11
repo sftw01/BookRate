@@ -56,29 +56,30 @@
 @code {
 
     // ================================== for image ==============================================
-    public ObjectImageList ListImage = new ObjectImageList();
+    [CascadingParameter]
+    public ObjectImageList ListImage { get; set; }
 
 
-    //this class is used for storing the image and information about it
-    public class ObjectImageList
-    {
-        public List<ImageInfo> ImageList { get; set; } = new List<ImageInfo>();
+    // //this class is used for storing the image and information about it
+    // public class ObjectImageList
+    // {
+    //     public List<ImageInfo> ImageList { get; set; } = new List<ImageInfo>();
 
-        public void ResetCoverImage()
-        {
-            //reset all images as not cover
-            foreach (var imageInfo in ImageList)
-            {
-                imageInfo.IsAsCover = false;
-            }
-        }
+    //     public void ResetCoverImage()
+    //     {
+    //         //reset all images as not cover
+    //         foreach (var imageInfo in ImageList)
+    //         {
+    //             imageInfo.IsAsCover = false;
+    //         }
+    //     }
 
-        public class ImageInfo
-        {
-            public byte[]? Image { get; set; }
-            public bool IsAsCover { get; set; } = false;
-        }
-    }
+    //     public class ImageInfo
+    //     {
+    //         public byte[]? Image { get; set; }
+    //         public bool IsAsCover { get; set; } = false;
+    //     }
+    // }
 
     // ============================================= for browsing file ======================================================================
     private byte[] tempCoverImage = Array.Empty<byte>();
@@ -104,6 +105,7 @@
         {
             ListImage.ResetCoverImage();
             ListImage.ImageList[0].IsAsCover = true;
+
         }
 
         tempCoverImage = ListImage.ImageList[0].Image;
@@ -119,6 +121,8 @@
         if (image == null)
         {
             tempCoverImage = Array.Empty<byte>();
+
+
         }
 
         //if deleted image was set as cover, set first image as cover

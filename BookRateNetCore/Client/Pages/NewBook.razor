@@ -1,4 +1,5 @@
-﻿@using BookRateNetCore.Shared.Dtos
+﻿@using BookRateNetCore.Client.Components.Dialogs
+@using BookRateNetCore.Shared.Dtos
 @using BookRateNetCore.Shared.Models
 @using System.ComponentModel.DataAnnotations;
 @using BookRateNetCore.Shared.Models
@@ -7,6 +8,8 @@
 
 @inject IDialogService DialogService
 @inject IBookService BookService
+
+@inject HttpClient httpClient
 
 @inject NavigationManager NavigationManager
 
@@ -21,7 +24,9 @@
 
 
     <div Style="margin-top: 20px; width: 100%;">
-        <ImageObject></ImageObject>
+        <CascadingValue Value="ListImage">
+            <ImageObject></ImageObject>
+        </CascadingValue>
     </div>
 
 
@@ -35,14 +40,14 @@
         <div Style="margin-top:30px;">
             <!-- Flexbox container for Title and Select -->
             <div Style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <MudTextField T="string" Label="Title" Variant="Variant.Filled" Style="width: 600px;" />
-                <MudTextField T="string" Label="Publisher" Variant="Variant.Filled" Style="width: 600px;" />
+                <MudTextField @bind-Value="model.Title" T="string" Label="Title" Variant="Variant.Filled" Style="width: 600px;" />
+                <MudTextField @bind-Value="model.Publisher" T="string" Label="Publisher" Variant="Variant.Filled" Style="width: 600px;" />
             </div>
 
             <div Style="display: flex; gap: 10px; margin-bottom: 40px;">
-                <MudTextField T="string" Label="Author" Variant="Variant.Filled" Style="width: 600px; " />
-                <MudDatePicker Label="Publication date" />
-                <MudTextField T="int" Label="Page Count" Variant="Variant.Filled" Style="width: 100px; " />
+                <MudTextField @bind-Value="model.Author" T="string" Label="Author" Variant="Variant.Filled" Style="width: 600px; " />
+                <MudDatePicker @bind-Date="model.PublishDate" Label="Publication date" />
+                <MudTextField @bind-Value="model.Pages" T="int" Label="Page Count" Variant="Variant.Filled" Style="width: 100px; " />
 
                 <MudSelect T="string" Label="Category" Variant="Variant.Filled" Style="width: 200px; ">
                     @foreach (var category in CategoryList)
@@ -69,7 +74,7 @@
 
         <div Style=" margin-top: 80px; display: flex; justify-content: space-between; align-items: center; padding: 10px;">
             <!-- Przycisk po lewej stronie -->
-            <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Visibility" OnClick="Refresh" Style="width: 160px; height:60px;">
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Visibility" OnClick="ShowDetails" Style="width: 160px; height:60px;">
                 Preview
             </MudButton>
 
@@ -101,9 +106,42 @@
         CategoryList = await BookService.GetCategories();
     }
 
+    //this class is used for storing the image and information about it
+    public ObjectImageList ListImage = new ObjectImageList();           //pass as cascading parameter to ImageObject
+
+    public class ObjectImageList
+    {
+        public List<ImageInfo> ImageList { get; set; } = new List<ImageInfo>();
 
 
 
+        public void ResetCoverImage()
+        {
+            //reset all images as not cover
+            foreach (var imageInfo in ImageList)
+            {
+                imageInfo.IsAsCover = false;
+            }
+        }
+
+        //walk around for fix the bug and obtain the cover image from the list
+        public byte[] GetCoverImage()
+        {
+            foreach (var imageInfo in ImageList)
+            {
+                if (imageInfo.IsAsCover)
+                    return imageInfo.Image;
+            }
+            return null;
+        }
+
+
+        public class ImageInfo
+        {
+            public byte[]? Image { get; set; }
+            public bool IsAsCover { get; set; } = false;
+        }
+    }
 
 
     // ==================================  for form ==============================================
@@ -146,5 +184,49 @@
                 });
         }
     }
+
+
+    private async Task ShowDetails()
+    {
+        Book book = new Book
+            {
+                Title = model.Title,
+                Author = model.Author,
+                Description = model.Description,
+                Rate = model.Rate,
+                Publisher = model.Publisher,
+                PublishDate = model.PublishDate,
+                CoverImage = ListImage.GetCoverImage(),  // Get cover image from the list
+                Pages = model.Pages
+            };
+
+        List<BookImage> Images = new List<BookImage>();
+
+        foreach (var image in ListImage.ImageList)
+        {
+            Images.Add(new BookImage(image.Image, book.Id));  // Przypisanie BookId
+        }
+
+        //
+        book.Images = Images;
+
+        //for debug
+        //book.Images.Add(null);
+
+        var parameters = new DialogParameters<BookDetailsDialog>
+        {
+            { x => x.Book, book }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, NoHeader = true };
+        // var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        await DialogService.ShowAsync<BookDetailsDialog>("Book details", parameters, options);
+
+
+        await httpClient.PostAsJsonAsync<Book>($"api/Book/AddBook", book);
+
+
+    }
+
 
 }

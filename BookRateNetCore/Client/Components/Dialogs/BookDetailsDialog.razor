@@ -19,7 +19,7 @@
 
                 <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@Book.Author</MudText>
 
-                <MudRating Value="@Book.Rate" MaxValue="5" Size="Size.Small" Style="margin-top: 10px;" />
+                <MudRating @bind-SelectedValue="@Book.Rate" MaxValue="5" Size="Size.Small" Style="margin-top: 10px;" />
 
                 <MudText Typo="Typo.body1" Style="margin-top: 20px;">
                     @Book.Description

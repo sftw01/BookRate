@@ -15,6 +15,6 @@ namespace BookRateNetCore.Shared.Dtos
         public byte[]? CoverImage { get; set; }
         public string? Publisher { get; set; }
         public DateTime? PublishDate { get; set; }
-        public int? Pages { get; set; }
+        public int Pages { get; set; } = 0;
     }
 }

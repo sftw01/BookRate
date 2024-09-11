@@ -30,9 +30,11 @@ namespace BookRateNetCore.Server.Controllers
 
         [HttpGet]
         [Route("GetBooks")]
-        public ActionResult<List<Book>> GetAll()
+        public ActionResult<List<Book>> GetAll([FromQuery] Guid? bookId)
         {
-            var books = _mediator.Send(new GetAllBookQuery());
+            //var url = bookId is null ? null : bookId;
+
+            var books = _mediator.Send(new GetAllBookQuery(bookId));
             return Ok(books);
         }
 

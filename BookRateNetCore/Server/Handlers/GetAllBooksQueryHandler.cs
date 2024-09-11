@@ -20,10 +20,16 @@ namespace BookRateNetCore.Server.Handlers
 
         public Task<List<Book>> Handle(GetAllBookQuery request, CancellationToken cancellationToken)
         {
+            if (request.Id is not null)
+            {
+                var book = _dbContext.Books.FirstOrDefault(x => x.Id == request.Id);
+                return Task.FromResult(new List<Book> { book });
+            }
+
             var books = _dbContext.Books.ToList();
             return Task.FromResult(books);
         }
 
-  
+
     }
 }
