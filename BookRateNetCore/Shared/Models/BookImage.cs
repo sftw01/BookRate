@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BookRateNetCore.Shared.Models
@@ -11,6 +12,7 @@ namespace BookRateNetCore.Shared.Models
         public Guid Id { get; set; }
         public byte[]? Image { get; set; }
         public Guid BookId { get; set; }
+        [JsonIgnore]
         public Book? Book { get; set; }     // Navigation property to Book
 
 

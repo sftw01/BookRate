@@ -22,11 +22,15 @@ namespace BookRateNetCore.Server.Handlers
         {
             if (request.Id is not null)
             {
-                var book = _dbContext.Books.FirstOrDefault(x => x.Id == request.Id);
+                var book = _dbContext.Books
+                    .Include(b => b.Images)
+                    .FirstOrDefault(x => x.Id == request.Id);
                 return Task.FromResult(new List<Book> { book });
             }
 
-            var books = _dbContext.Books.ToList();
+            var books = _dbContext.Books
+                .Include(b => b.Images)
+                .ToList();
             return Task.FromResult(books);
         }
 
