@@ -9,17 +9,26 @@
 @inject NavigationManager NavigationManager
 
 <MudItem xs="2">
-    <MudCard>
+    <MudCard Style="height:100%; display:flex; flex-direction:column;">
         <div style="display: flex; justify-content: center;">
             <MudImage Src="@GetImageSrc(book.CoverImage)" Width="250" Height="200" />
         </div>
 
-        <MudCardContent>
-            <MudText Typo="Typo.h5"> @book.Title</MudText>
+        <MudCardContent Style="flex-grow: 1;">
+            <MudText Style="height: 3.6em; line-height: 1.2em; overflow: hidden;" Typo="Typo.h5">
+                @book.Title
+            </MudText>
             <MudRating ReadOnly="true" SelectedValue="@book.Rate" Size="Size.Small" />
             <MudText Typo="Typo.body2">@book.Author</MudText>
-            <MudText Typo="Typo.body2">@book.Description</MudText>
-            @* <MudRating ReadOnly="false" SelectedValue="@book.Rate" Size="Size.Large" /> *@
+
+            <MudText Style="height: 6em; line-height: 1.2em; overflow: hidden;" Typo="Typo.body2">
+                @((MarkupString)GetTrimedText(book.Description))
+            </MudText>
+
+
+            @*             <MudText Style="height: 6em; line-height: 1.2em; overflow: hidden;" Typo="Typo.body2">
+            @GetTrimedText(book.Description)
+            </MudText> *@
         </MudCardContent>
 
         <MudCardActions>
@@ -106,8 +115,23 @@
             { x => x.Book, book }
         };
 
-         var options = new DialogOptions() { CloseButton = true, NoHeader = true };
-         // var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-         await DialogService.ShowAsync<BookDetailsDialog>("Book details", parameters, options);
+        var options = new DialogOptions() { CloseButton = true, NoHeader = true };
+        // var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        await DialogService.ShowAsync<BookDetailsDialog>("Book details", parameters, options);
     }
+
+    public string GetTrimedText(string description)
+    {
+        if (description.Length > 100)
+        {
+            return description.Substring(0, 100) + "...";
+        }
+        else
+        {
+            return description;
+        }
+    }
+
+
+
 }

@@ -45,7 +45,7 @@
 
 
 
-<div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 75vh; margin-top: 80px;">
+<div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 50vh; margin-top: 80px;">
     <MudGrid Justify="Justify.Center" Style="flex-grow: 1;">
         @if (Books.Count > 0)
         {
@@ -65,7 +65,7 @@
         }
     </MudGrid>
 
-    <div style="display: flex; justify-content: center; margin-top: 20px;">
+    <div style="display: flex; justify-content: center; margin-top: 160px;">
         <MudPagination Size="Size.Large" Color="Color.Primary" Count="totalPages" @bind-Selected="@selectedPage" />
     </div>
 </div>
