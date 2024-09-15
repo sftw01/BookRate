@@ -79,7 +79,7 @@
     private class CategoryDtoValidator : CategoryDto
     {
         [Required(ErrorMessage = "Category name is required.")]
-        [MaxLength(20, ErrorMessage = "Category name is too long.")]
+        [MaxLength(28, ErrorMessage = "Category name is too long.")]
         public string Name { get; set; }
     }
 

@@ -21,31 +21,35 @@
     <!-- right side: images in foreach -->
     <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; margin-left:70px;">
 
-        @foreach (var imageObject in ListImage.ImageList)
+        @if(ListImage is not null)
         {
-            <MudPaper Style="position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 150px; height: 200px; margin-bottom: 20px;">
-                <MudImage Src="@GetImageSrc2(imageObject.Image)"
-                          ObjectFit="ObjectFit.Contain"
-                          Style="display: block; width: 100%; height: 200px;"
-                          @onclick="() => OnImageClick(imageObject)" />
+            @foreach (var imageObject in ListImage.ImageList)
+            {
+                <MudPaper Style="position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 150px; height: 200px; margin-bottom: 20px;">
+                    <MudImage Src="@GetImageSrc2(imageObject.Image)"
+                              ObjectFit="ObjectFit.Contain"
+                              Style="display: block; width: 100%; height: 200px;"
+                              @onclick="() => OnImageClick(imageObject)" />
 
-                @if (imageObject.IsAsCover && imageObject.Image is not null) //when image is selected as cover
-                {
-                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Book"
-                               Color="Color.Info" Size="Size.Small"
-                               Style="position: absolute; top: -5px; left: -20px;">
-                        Cover
-                    </MudButton>
-                }
+                    @if (imageObject.IsAsCover && imageObject.Image is not null) //when image is selected as cover
+                    {
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Book"
+                                   Color="Color.Info" Size="Size.Small"
+                                   Style="position: absolute; top: -5px; left: -20px;">
+                            Cover
+                        </MudButton>
+                    }
 
-                @if (imageObject.Image is not null)
-                {
-                    <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Delete"
-                            Size="Size.Small" Style="position: absolute; top: 150px; left: 100px;"
-                            OnClick="() => DeleteImage(imageObject)" />
-                }
-            </MudPaper>
+                    @if (imageObject.Image is not null)
+                    {
+                        <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Delete"
+                                Size="Size.Small" Style="position: absolute; top: 150px; left: 100px;"
+                                OnClick="() => DeleteImage(imageObject)" />
+                    }
+                </MudPaper>
+            }
         }
+        
     </div>
 
 </div>
@@ -57,7 +61,7 @@
 
     // ================================== for image ==============================================
     [CascadingParameter]
-    public ObjectImageList ListImage { get; set; }
+    public ObjectImageList? ListImage { get; set; }
 
 
     // //this class is used for storing the image and information about it

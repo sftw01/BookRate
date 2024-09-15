@@ -8,12 +8,20 @@
 <MudDialog MaxWidth="MaxWidth.None" Style="width: 130vw; height: 80vh;">
     <DialogContent>
         <MudGrid Style="margin-top: 20px;">
+            
+                <MudItem xs="12" md="4" lg="3" Style="background-color:aqua;">
+                    <MudImage Src="@GetImageSrc(Book.CoverImage)" Alt="Book Cover" Style="width: 100%; height: auto; max-width: 400px; max-height: 600px;" />
+                    <br />
+                    <br />
 
-            <MudItem xs="12" md="4" lg="3">
-                <MudImage Src="@GetImageSrc(Book.CoverImage)" Alt="Book Cover" Style="width: 100%; height: auto; max-width: 400px; max-height: 600px;" />
-            </MudItem>
+                    @foreach (var image in Book.Images)
+                    {
+                        <MudImage Src="@GetImageSrc(image.Image)" Alt="Book Cover" Style="width: 100%; height: auto; max-width: 60px; max-height: 100px;" />
+                    }
+                </MudItem>
+     
 
-            <MudItem xs="12" md="8" lg="9">
+            <MudItem xs="12" md="8" lg="9" Style="background-color:burlywood;">
 
                 <MudText Typo="Typo.h4" GutterBottom="true">@Book.Title</MudText>
 

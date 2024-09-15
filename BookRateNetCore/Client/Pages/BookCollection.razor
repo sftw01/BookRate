@@ -33,11 +33,12 @@
 
     <div style="display: flex; align-items: center; gap: 8px; width: 180px;">
         <span>Items:</span>
-        <MudSelect T="int" @bind-Value="itemsPerPage" Margin="Margin.Dense" Dense="true" Style="width: 100%;">
+        <MudSelect T="int" @bind-Value="itemsPerPage" Margin="Margin.Dense" Dense="true" Style="width: 100%;"> 
             <MudSelectItem T="int" Value="4">4</MudSelectItem>
             <MudSelectItem T="int" Value="6">6</MudSelectItem>
             <MudSelectItem T="int" Value="8">8</MudSelectItem>
             <MudSelectItem T="int" Value="10">10</MudSelectItem>
+            <MudSelectItem T="int" Value="12">12</MudSelectItem>
         </MudSelect>
     </div>
 
@@ -235,6 +236,8 @@
             return Books.Count / itemsPerPage;
         return (Books.Count / itemsPerPage) + 1;
     }
+
+
 
     private void NawigeteToNewBook()
     {        
