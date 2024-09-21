@@ -27,14 +27,15 @@ namespace BookRateNetCore.Server.Controllers
         }
 
         // ========================================= Book =========================================
+        //GetBooks?pageNumber={pageNumber}&pageSize={pageSize}"
 
         [HttpGet]
         [Route("GetBooks")]
-        public ActionResult<List<Book>> GetAll([FromQuery] Guid? bookId)
+        public ActionResult<List<Book>> GetAll([FromQuery] Guid? bookId, [FromQuery] int? pageNumber, [FromQuery] int? pageSize )
         {
             //var url = bookId is null ? null : bookId;
 
-            var books = _mediator.Send(new GetAllBookQuery(bookId));
+            var books = _mediator.Send(new GetAllBookQuery(bookId, pageNumber, pageSize));
             return Ok(books);
         }
 
