@@ -39,6 +39,7 @@ namespace BookRateNetCore.Server.Handlers
                     .Take(request.PageSize.Value)
                     .ToList();
                 return Task.FromResult(book);
+
             }
 
             //if passed is only pageNumber, return books from that page - defaut pageSize is 3
