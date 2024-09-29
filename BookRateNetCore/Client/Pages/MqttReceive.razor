@@ -1,0 +1,83 @@
+﻿@using BookRateNetCore.Shared.Dtos
+@using BookRateNetCore.Shared.Models
+@using System.ComponentModel.DataAnnotations;
+@using BookRateNetCore.Shared.Services
+@using MudBlazor
+@using BookRateNetCore.Client.Components.Objects
+@using Microsoft.AspNetCore.SignalR.Client
+
+@using BookRateNetCore.Client.Components
+@using BookRateNetCore.Shared;
+@using BookRateNetCore.Client.Services
+
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+@inject SignalRService SignalRService
+@* @implements IAsyncDisposable *@
+
+@page "/MqttReceive"
+
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+
+<h3>MQTT Client</h3>
+
+<div>
+    <MudTextField Label="Topic" @bind-Value="Topic" />
+    <MudTextField Label="Payload" @bind-Value="Payload" Lines="4" />
+</div>
+<div>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PublishMessage">Publish</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" @onclick="SubscribeTopic">Subscribe</MudButton>
+</div>
+
+
+
+
+<input @bind="Topic" placeholder="Topic" />
+<input @bind="Payload" placeholder="Payload" />
+
+<button @onclick="PublishMessage">Publish</button>
+<button @onclick="SubscribeTopic">Subscribe</button>
+
+<div>
+    <h4>Received Messages:</h4>
+    <ul>
+        @foreach (var message in Messages)
+
+        {
+            <li>@message</li>
+        }
+    </ul>
+</div>
+
+
+
+
+@code {
+
+
+
+    //MQTT
+    private string Topic { get; set; }
+    private string Payload { get; set; }
+    private List<string> Messages { get; set; } = new List<string>();
+
+    private async Task PublishMessage()
+    {
+        Console.WriteLine("Publish to topic: " + Topic);
+        var payload = new MqttMessageDto { Topic = Topic, Payload = Payload };
+        await Http.PostAsJsonAsync("api/mqtt/publish", payload);
+    }
+
+    private async Task SubscribeTopic()
+    {
+        Console.WriteLine("Subscribing to topic: " + Topic);
+        var payload = new MqttMessageDto { Topic = Topic, Payload = "" };
+        await Http.PostAsJsonAsync("api/mqtt/subscribe", payload);
+    }
+
+}

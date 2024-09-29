@@ -2,6 +2,7 @@ using BookRateNetCore.Client.Services;
 using BookRateNetCore.Server.Hubs;
 using BookRateNetCore.Server.Persistence;
 using BookRateNetCore.Server.Seeders;
+using BookRateNetCore.Server.Services;
 using BookRateNetCore.Shared.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddSignalR();
 
+builder.Services.AddSingleton<MqttService>();
 builder.Services.AddDbContext<BookDbContext>();
 builder.Services.AddScoped<BookSeeder>();
 

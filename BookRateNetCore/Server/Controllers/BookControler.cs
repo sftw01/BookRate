@@ -14,7 +14,6 @@ using BookRateNetCore.Server.Queries;
 namespace BookRateNetCore.Server.Controllers
 {
     [Route("api/book")]
-    //[Route("api/[controller]")]
     [ApiController]
     public class BookControler : ControllerBase
     {
