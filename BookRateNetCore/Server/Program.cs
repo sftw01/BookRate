@@ -1,4 +1,5 @@
 using BookRateNetCore.Client.Services;
+using BookRateNetCore.Server.Hubs;
 using BookRateNetCore.Server.Persistence;
 using BookRateNetCore.Server.Seeders;
 using BookRateNetCore.Shared.Services;
@@ -12,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<BookDbContext>();
 builder.Services.AddScoped<BookSeeder>();
@@ -52,6 +55,9 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
+
+app.MapHub<TeamRetroHub>("/teamRetroHub");
+
 app.MapFallbackToFile("index.html");
 
 app.Run();

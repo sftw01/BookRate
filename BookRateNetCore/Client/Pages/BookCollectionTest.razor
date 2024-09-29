@@ -1,0 +1,252 @@
+﻿@using BookRateNetCore.Client.Components.Objects
+@using BookRateNetCore.Shared.Models
+@using BookRateNetCore.Shared.Services
+@using BookRateNetCore.Client.Components.Dialogs
+@using BookRateNetCore.Shared
+
+@inject IDialogService DialogService;
+@inject HttpClient httpClient;
+@inject NavigationManager NavigationManager
+
+@page "/bookcollectionTest"
+
+
+
+<h1>bookcollectionTest</h1>
+
+
+<div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 30px;">
+    <MudButton OnClick="NawigeteToNewBook" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">
+        Add Book - new page
+    </MudButton>
+
+    <MudButton OnClick="OpenNewBookDialog" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">
+        Add Book
+    </MudButton>
+
+    <MudButton OnClick="DeleteAll" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">
+        Delete All
+    </MudButton>
+
+    <MudButton OnClick="SeedRandom" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Casino" Color="Color.Primary">
+        Seed Random
+    </MudButton>
+
+    <div style="display: flex; align-items: center; gap: 8px; width: 180px;">
+        <span>Items:</span>
+        <MudSelect T="int" @bind-Value="itemsPerPage" Margin="Margin.Dense" Dense="true" Style="width: 100%;"> 
+            <MudSelectItem T="int" Value="4">4</MudSelectItem>
+            <MudSelectItem T="int" Value="6">6</MudSelectItem>
+            <MudSelectItem T="int" Value="8">8</MudSelectItem>
+            <MudSelectItem T="int" Value="10">10</MudSelectItem>
+            <MudSelectItem T="int" Value="12">12</MudSelectItem>
+        </MudSelect>
+    </div>
+
+</div>
+
+
+
+<div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 50vh; margin-top: 80px;">
+    <MudGrid Justify="Justify.Center" Style="flex-grow: 1;">
+        @if (Books.Count > 0 && Books is not null)
+        {
+         foreach(var book in Books)
+            {
+                <CascadingValue Value="@book">
+                    <BookObject Refresh="RefreshPage"></BookObject>
+                </CascadingValue>
+            }
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Info" Style="align-self: center; font-size: larger;">No books found</MudAlert>
+        }
+    </MudGrid>
+
+    sel-page: @selectedPage
+
+    <div style="display: flex; justify-content: center; margin-top: 160px;">
+        <MudPagination Size="Size.Large" Color="Color.Primary"   Count="totalPages" SelectedChanged="ClickPage" />
+        @* <MudPagination Size="Size.Large" Color="Color.Primary" Count="totalPages" @bind-Selected="@selectedPage" SelectedChanged="PageChanged" /> *@
+    </div>
+</div>
+
+
+
+
+
+
+
+
+@code {
+
+    private List<Book> Books { get; set; } = new List<Book>();
+    private int selectedPage = 1;
+    private int itemsPerPage = 4;
+    private int totalPages = 3;
+
+    public int? pageNumber { get; set; } = 1; // Ustaw domyślną wartość
+
+
+    public MudPagination mudPagination = new MudPagination();
+
+
+    private async Task LoadBooks()
+    {
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>($"api/Book/GetBooks?pageNumber={pageNumber}");
+
+        if (response is not null)
+        {
+            Books = response.Result;
+            StateHasChanged();
+        }
+    }
+
+
+    private void ClickPage(int i)
+    {
+        pageNumber = i;
+        selectedPage = i;
+        LoadBooks();
+    }
+
+    //override method
+    protected override async Task OnInitializedAsync()
+    {      
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>($"api/Book/GetBooks?pageNumber={pageNumber}");
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
+
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>($"api/Book/GetBooks?pageNumber={pageNumber}");
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
+
+    }
+
+
+
+    //procedures to management like as add, delete
+    private async Task AddBookAction(Book book)
+    {
+        await httpClient.PostAsJsonAsync<Book>($"api/Book/AddBook", book);
+
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
+
+
+    }
+
+    private async Task DeleteAllAction()
+    {
+        HttpResponseMessage responseMessage = await httpClient.DeleteAsync($"api/Book/DeleteAll");
+        if (responseMessage.IsSuccessStatusCode)
+        {
+            var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+            if (response is not null)
+            {
+                Books = response.Result;
+            }
+
+        }
+        else
+        {
+            Console.WriteLine("Error");
+        }
+    }
+
+    private async Task SeedRandomAction()
+    {
+        await httpClient.PostAsJsonAsync($"api/Book/SeedRandom", 0);
+
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>("api/Book/GetBooks");
+        if (response is not null)
+        {
+            Books = response.Result;
+        }
+    }
+
+
+    //new book dialog when click add book button
+    private async Task OpenNewBookDialog()
+    {
+        var dialog = DialogService.Show<NewBookDialog>();
+        var result = await dialog.Result;
+
+        if(result is not null)
+        {
+            if (result.Data is not null)
+            {
+                var newBook = result.Data as Book;
+
+                if (newBook != null)
+                {
+                    await AddBookAction(newBook);
+                }
+            }
+        }
+
+    }
+
+    //delete all dialog when click delete all button
+    private async Task DeleteAll()
+    {
+        //pass parameters to dialog component for confirmation of delete all records
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.ContentText, "Do you really want to delete all records? This process cannot be undone." },
+            { x => x.ButtonText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+
+        //if user confirm dlete records invoke DeleteAllAction method
+
+        if(result is not null)
+        {
+            if (result.Data is not null)
+            {
+                await DeleteAllAction();
+            }
+        }
+
+    }
+
+    //use in future
+    private async Task SeedRandom()
+    {
+        await SeedRandomAction();
+    }
+
+    //to refresh the page after delete BookObject from the page
+    private async Task RefreshPage()
+    {
+        var response = await httpClient.GetFromJsonAsync<ApiResponse<Book>>($"api/Book/GetBooks?pageNumber={pageNumber}");
+        Books = response.Result;
+
+        StateHasChanged();
+    }
+
+
+
+
+    private void NawigeteToNewBook()
+    {        
+        NavigationManager.NavigateTo("/newbook");
+    }
+}
