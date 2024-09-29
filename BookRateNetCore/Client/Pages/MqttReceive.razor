@@ -25,24 +25,37 @@
 
 <h3>MQTT Client</h3>
 
-<div>
-    <MudTextField Label="Topic" @bind-Value="Topic" />
-    <MudTextField Label="Payload" @bind-Value="Payload" Lines="4" />
+
+
+
+<div style="margin-top:50px;">
+    <div style="display: flex; width: 600px;">
+        <div style="flex: 1; margin-right: 20px; display: flex; flex-direction: column; gap: 10px;">
+            <MudTextField Label="Topic" @bind-Value="Topic" Style="width: 100%;" />
+            <MudTextField Label="Payload" @bind-Value="Payload" Lines="6" Style="width: 100%;" />
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start;">
+            <MudTextField Label="Actions" @bind-Value="Actions" Lines="9" Style="width: 100%;" />
+        </div>
+    </div>
+    <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PublishMessage" Style="width: 150px;">Publish</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" @onclick="SubscribeTopic" Style="width: 150px;">Subscribe</MudButton>
+    </div>
 </div>
-<div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PublishMessage">Publish</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Secondary" @onclick="SubscribeTopic">Subscribe</MudButton>
+
+
+
+
+
+
+<div Style="width: 500px; margin-top:40px;">
+    <input @bind="Topic" placeholder="Topic" />
+    <input @bind="Payload" placeholder="Payload" />
+
+    <button @onclick="PublishMessage">Publish</button>
+    <button @onclick="SubscribeTopic">Subscribe</button>
 </div>
-
-
-
-
-<input @bind="Topic" placeholder="Topic" />
-<input @bind="Payload" placeholder="Payload" />
-
-<button @onclick="PublishMessage">Publish</button>
-<button @onclick="SubscribeTopic">Subscribe</button>
-
 <div>
     <h4>Received Messages:</h4>
     <ul>
@@ -64,7 +77,29 @@
     //MQTT
     private string Topic { get; set; }
     private string Payload { get; set; }
+
+    private string Actions { get; set; }
+
     private List<string> Messages { get; set; } = new List<string>();
+
+    private HubConnection hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/mqttHub"))
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (topic, payload) =>
+        {
+            Messages.Add($"Topic: {topic}, Payload: {payload}");
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+
 
     private async Task PublishMessage()
     {

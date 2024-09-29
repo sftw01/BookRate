@@ -58,7 +58,9 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 
-app.MapHub<TeamRetroHub>("/teamRetroHub");
+
+app.MapHub<MqttHub>("/mqtthub");
+
 
 app.MapFallbackToFile("index.html");
 

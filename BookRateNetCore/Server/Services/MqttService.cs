@@ -3,6 +3,8 @@ using MQTTnet;
 using static BookRateNetCore.Client.Pages.MqttReceive;
 using System.Text;
 using BookRateNetCore.Shared;
+using Microsoft.AspNetCore.SignalR;
+using BookRateNetCore.Server.Hubs;
 
 namespace BookRateNetCore.Server.Services
 {
@@ -17,14 +19,14 @@ namespace BookRateNetCore.Server.Services
     public class MqttService
     {
         private readonly IMqttClient _mqttClient;
+        private readonly IHubContext<MqttHub> _hubContext;
 
 
-        public MqttService()
+        public MqttService(IHubContext<MqttHub> hubContext)
         {
+            _hubContext = hubContext;
             var factory = new MqttFactory();
             _mqttClient = factory.CreateMqttClient();
-
-            //log to console
             Console.WriteLine("MqttService created");
         }
 
@@ -135,6 +137,8 @@ namespace BookRateNetCore.Server.Services
                     Console.WriteLine($"Quality of Service: moje toStr {e.ApplicationMessage.QualityOfServiceLevel.ToString()}");
 
                     message.Payload = payloadReceive;                                       // jesli odebrał to wrzycam do obiektu nowa wartosc payload               
+
+                    _hubContext.Clients.All.SendAsync("ReceiveMessage", e.ApplicationMessage.Topic, payloadReceive);
 
                     await Task.CompletedTask;
                 };
